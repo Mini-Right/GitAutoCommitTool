@@ -1,8 +1,34 @@
 {
   "repos": [
     {
-      "path": "E:/CodeSpace/GitAutoCommitTool",
-      "enabled": true
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumoBeeClueAdmin",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumoBeeCludWeb",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumoBeeClueBusiness",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumoBeeClueChannel",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumoBeeClueSaasBackend",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\GitAutoCommitTool",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
     }
   ],
   "interval_minutes": 30,

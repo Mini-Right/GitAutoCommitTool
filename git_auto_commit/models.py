@@ -15,7 +15,7 @@ class RepoState(Enum):
 class RepoConfig:
     path: Path
     enabled: bool = True
-    commit_message_prefix: str = "auto: "
+    commit_message_prefix: str = "自动提交: "
 
 
 @dataclass

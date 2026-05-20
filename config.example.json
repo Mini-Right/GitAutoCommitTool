@@ -3,7 +3,7 @@
     {
       "path": "D:/Projects/my-app",
       "enabled": true,
-      "commit_message_prefix": "auto: "
+      "commit_message_prefix": "自动提交: "
     },
     {
       "path": "C:/Users/Administrator/another-project",

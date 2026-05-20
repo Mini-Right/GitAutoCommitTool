@@ -8,7 +8,27 @@
       "Bash(git init *)",
       "Bash(git config *)",
       "Bash(py -m git_auto_commit --once --dry-run)",
-      "Bash(py -m git_auto_commit --once)"
+      "Bash(py -m git_auto_commit --once)",
+      "Bash(py -X utf8 -c \"print\\('已加载 1 个仓库，扫描间隔: 30 分钟。'\\); print\\('检测到变更'\\)\")",
+      "Bash(py -X utf8 -m git_auto_commit --once --dry-run)",
+      "Bash(py -m git_auto_commit)",
+      "Bash(curl -s http://localhost:8080/api/status)",
+      "Bash(curl -s http://localhost:8080/api/config)",
+      "Bash(kill %1)",
+      "Bash(wait %1)",
+      "Bash(py -m git_auto_commit --no-web --once)",
+      "Bash(curl -s -I http://localhost:8080/)",
+      "Bash(curl -s http://localhost:8080/)",
+      "Bash(py -m git_auto_commit --once --no-web)",
+      "Bash(py -m pip install pyinstaller)",
+      "Bash(py -m PyInstaller --onefile --console --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" git_auto_commit/__main__.py)",
+      "Bash(./GitAutoCommit.exe --once --no-web)",
+      "Bash(py -m PyInstaller --onefile --console --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" run.py)",
+      "Bash(./GitAutoCommit.exe --once)",
+      "Bash(rm -f config.json)",
+      "Bash(./GitAutoCommit.exe)",
+      "Bash(curl -s -X POST http://localhost:8080/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/GitAutoCommitTool\"}')",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}, First: {d[\\\\\"repos\\\\\"][0][\\\\\"name\\\\\"]}'\\)\")"
     ]
   }
 }

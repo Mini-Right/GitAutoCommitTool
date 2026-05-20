@@ -39,12 +39,12 @@ def _run_git(path: Path, args: list[str], timeout: int = TIMEOUT) -> subprocess.
         return subprocess.run(
             ["git", "-C", str(path), *args],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             timeout=timeout,
             env={**subprocess.os.environ, **GIT_ENV},
         )
     except FileNotFoundError:
-        raise GitNotFoundError("git is not installed or not on PATH")
+        raise GitNotFoundError("Git 未安装或不在 PATH 中")
 
 
 def check_git_installed() -> None:
@@ -52,11 +52,11 @@ def check_git_installed() -> None:
         subprocess.run(
             ["git", "--version"],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             timeout=10,
         )
     except FileNotFoundError:
-        raise GitNotFoundError("git is not installed or not on PATH. Please install git first.")
+        raise GitNotFoundError("Git 未安装或不在 PATH 中，请先安装 Git。")
 
 
 def is_git_repo(path: Path) -> bool:
@@ -94,7 +94,7 @@ def has_index_lock(path: Path) -> bool:
 def add_all(path: Path) -> None:
     result = _run_git(path, ["add", "-A"])
     if result.returncode != 0:
-        raise GitError(f"git add failed: {result.stderr.strip()}")
+        raise GitError(f"git add 失败: {result.stderr.strip()}")
 
 
 def commit(path: Path, message: str) -> str:
@@ -103,11 +103,11 @@ def commit(path: Path, message: str) -> str:
         stderr = result.stderr.strip()
         if "Please tell me who you are" in stderr:
             raise CommitFailedError(
-                "Git user not configured. Run: git config --global user.name / user.email"
+                "Git 用户未配置，请执行: git config --global user.name / user.email"
             )
         if "nothing to commit" in stderr:
-            raise CommitFailedError("Nothing to commit (race condition)")
-        raise CommitFailedError(f"git commit failed: {stderr}")
+            raise CommitFailedError("没有可提交的内容（并发竞争）")
+        raise CommitFailedError(f"git commit 失败: {stderr}")
     rev_result = _run_git(path, ["rev-parse", "--short", "HEAD"])
     return rev_result.stdout.strip()
 
@@ -127,7 +127,7 @@ def push_with_retry(path: Path, max_retries: int, delay: int, logger: logging.Lo
         if push(path):
             return True
         if attempt < max_retries:
-            logger.warning("Push attempt %d/%d failed. Retrying in %ds...", attempt, max_retries, delay)
+            logger.warning("Push 第 %d/%d 次失败，%d 秒后重试...", attempt, max_retries, delay)
             time.sleep(delay)
     return False
 
@@ -145,43 +145,43 @@ def process_repo(
         return ScanResult(
             repo_path=path,
             state=RepoState.ERROR,
-            error_message="Path does not exist",
+            error_message="路径不存在",
         )
 
     if not is_git_repo(path):
         return ScanResult(
             repo_path=path,
             state=RepoState.ERROR,
-            error_message="Not a git repository",
+            error_message="不是一个 Git 仓库",
         )
 
     if not repo.enabled:
         return ScanResult(repo_path=path, state=RepoState.SKIPPED)
 
     if has_index_lock(path):
-        logger.warning("[%s] .git/index.lock exists. Skipping this cycle.", repo_name)
+        logger.warning("[%s] 存在 .git/index.lock 文件，跳过本轮扫描。", repo_name)
         return ScanResult(
             repo_path=path,
             state=RepoState.ERROR,
-            error_message=".git/index.lock exists — stale lock file",
+            error_message=".git/index.lock 存在（残留锁文件）",
         )
 
     is_detached = is_detached_head(path)
     if is_detached:
-        logger.warning("[%s] Detached HEAD. Will commit but skip push.", repo_name)
+        logger.warning("[%s] 处于 Detached HEAD 状态，将提交但跳过 push。", repo_name)
 
     if not has_changes(path):
-        logger.info("[%s] No changes.", repo_name)
+        logger.info("[%s] 没有变更。", repo_name)
         return ScanResult(repo_path=path, state=RepoState.CLEAN)
 
-    logger.info("[%s] Changes detected.", repo_name)
+    logger.info("[%s] 检测到变更。", repo_name)
 
     if dry_run:
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         msg = f"{repo.commit_message_prefix}scheduled commit [{ts}]"
-        logger.info("[%s] [DRY RUN] Would add all & commit with: %s", repo_name, msg)
+        logger.info("[%s] [预览模式] 将 add 所有文件并 commit: %s", repo_name, msg)
         if not is_detached and has_remote(path):
-            logger.info("[%s] [DRY RUN] Would push.", repo_name)
+            logger.info("[%s] [预览模式] 将执行 push。", repo_name)
         return ScanResult(
             repo_path=path,
             state=RepoState.DIRTY,
@@ -191,14 +191,14 @@ def process_repo(
 
     remote = has_remote(path)
     if app_config.pull_before_push and remote and not is_detached:
-        logger.info("[%s] Pulling latest changes...", repo_name)
+        logger.info("[%s] 拉取最新代码...", repo_name)
         if pull(path):
-            logger.info("[%s] Pull successful.", repo_name)
+            logger.info("[%s] 拉取成功。", repo_name)
         else:
-            logger.warning("[%s] Pull failed (non-fast-forward or network issue). Continuing anyway.", repo_name)
+            logger.warning("[%s] 拉取失败（非快进或网络问题），继续执行。", repo_name)
 
     try:
-        logger.info("[%s] Staging all changes...", repo_name)
+        logger.info("[%s] 暂存所有变更...", repo_name)
         add_all(path)
     except GitError as e:
         return ScanResult(
@@ -209,7 +209,7 @@ def process_repo(
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     message = f"{repo.commit_message_prefix}scheduled commit [{ts}]"
-    logger.info("[%s] Committing: %s", repo_name, message)
+    logger.info("[%s] 提交: %s", repo_name, message)
 
     try:
         commit_hash = commit(path, message)
@@ -220,11 +220,11 @@ def process_repo(
             error_message=str(e),
         )
 
-    logger.info("[%s] Committed %s.", repo_name, commit_hash)
+    logger.info("[%s] 已提交 %s。", repo_name, commit_hash)
 
     push_ok = None
     if remote and not is_detached:
-        logger.info("[%s] Pushing...", repo_name)
+        logger.info("[%s] 推送中...", repo_name)
         push_ok = push_with_retry(
             path,
             app_config.max_push_retries,
@@ -232,13 +232,13 @@ def process_repo(
             logger,
         )
         if push_ok:
-            logger.info("[%s] Push successful.", repo_name)
+            logger.info("[%s] 推送成功。", repo_name)
         else:
-            logger.error("[%s] Push failed after %d retries. Commit is local only.", repo_name, app_config.max_push_retries)
+            logger.error("[%s] 推送失败（重试 %d 次后放弃），提交仅保留在本地。", repo_name, app_config.max_push_retries)
     elif is_detached:
-        logger.info("[%s] Skipping push (detached HEAD).", repo_name)
+        logger.info("[%s] 跳过推送（Detached HEAD）。", repo_name)
     elif not remote:
-        logger.info("[%s] No remote configured. Skipping push.", repo_name)
+        logger.info("[%s] 没有远程仓库，跳过推送。", repo_name)
 
     return ScanResult(
         repo_path=path,
