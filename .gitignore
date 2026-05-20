@@ -17,3 +17,5 @@ Thumbs.db
 
 # Project
 config.json
+*.spec
+run.py

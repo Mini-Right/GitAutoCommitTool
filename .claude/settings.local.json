@@ -28,7 +28,15 @@
       "Bash(rm -f config.json)",
       "Bash(./GitAutoCommit.exe)",
       "Bash(curl -s -X POST http://localhost:8080/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/GitAutoCommitTool\"}')",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}, First: {d[\\\\\"repos\\\\\"][0][\\\\\"name\\\\\"]}'\\)\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}, First: {d[\\\\\"repos\\\\\"][0][\\\\\"name\\\\\"]}'\\)\")",
+      "Bash(taskkill //F //IM GitAutoCommit.exe)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}'\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}, Name: {d[\\\\\"repos\\\\\"][0][\\\\\"name\\\\\"]}'\\)\")",
+      "Bash(python -c \"import sys,json; print\\(len\\(json.load\\(sys.stdin\\)['repos']\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:8080/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/HumoBeeClue/HumoBeeClueAdmin\"}')",
+      "Bash(./GitAutoCommit.exe --port 9999)",
+      "Bash(curl -s http://localhost:9999/api/status)",
+      "Bash(curl -s -X POST http://localhost:9999/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/GitAutoCommitTool\"}')"
     ]
   }
 }
