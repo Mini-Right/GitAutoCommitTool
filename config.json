@@ -1,0 +1,12 @@
+{
+  "repos": [
+    {
+      "path": "E:/CodeSpace/GitAutoCommitTool",
+      "enabled": true
+    }
+  ],
+  "interval_minutes": 30,
+  "pull_before_push": false,
+  "max_push_retries": 1,
+  "push_retry_delay_seconds": 5
+}

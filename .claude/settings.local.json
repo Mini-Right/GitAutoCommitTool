@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git --version)",
+      "Bash(py --version)",
+      "Bash(where python3 *)",
+      "Read(//c//**)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(py -m git_auto_commit --once --dry-run)",
+      "Bash(py -m git_auto_commit --once)"
+    ]
+  }
+}

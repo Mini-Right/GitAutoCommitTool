@@ -1,0 +1,12 @@
+[project]
+name = "git-auto-commit"
+version = "1.0.0"
+description = "Automatically commit and push changes in configured git repositories"
+requires-python = ">=3.10"
+
+[project.scripts]
+git-auto-commit = "git_auto_commit.__main__:main"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"

@@ -1,0 +1,17 @@
+{
+  "repos": [
+    {
+      "path": "D:/Projects/my-app",
+      "enabled": true,
+      "commit_message_prefix": "auto: "
+    },
+    {
+      "path": "C:/Users/Administrator/another-project",
+      "enabled": true
+    }
+  ],
+  "interval_minutes": 30,
+  "pull_before_push": true,
+  "max_push_retries": 3,
+  "push_retry_delay_seconds": 5
+}
