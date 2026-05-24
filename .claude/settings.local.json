@@ -41,7 +41,8 @@
       "Bash(py -m git_auto_commit --port 9997)",
       "Bash(curl -s -X POST http://localhost:9997/api/push-all -H \"Content-Type: application/json\")",
       "Bash(curl -s http://localhost:9997/api/status)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(taskkill //F //IM py.exe)"
     ]
   }
 }
