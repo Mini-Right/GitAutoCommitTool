@@ -250,19 +250,20 @@ function renderRepos(repos) {
       <td>${pushBadge}</td>
       <td>
         <label class="toggle">
-          <input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="toggleRepo('${h(r.path)}', this.checked)">
+          <input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="toggleRepo('${js(h(r.path))}', this.checked)">
           <span class="toggle-slider"></span>
         </label>
       </td>
       <td>
-        <button class="btn btn-blue btn-sm" onclick="pushRepo('${h(r.path)}')">推送</button>
-        <button class="btn btn-red btn-sm" onclick="deleteRepo('${h(r.path)}')">删除</button>
+        <button class="btn btn-blue btn-sm" onclick="pushRepo('${js(h(r.path))}')">推送</button>
+        <button class="btn btn-red btn-sm" onclick="deleteRepo('${js(h(r.path))}')">删除</button>
       </td>
     </tr>`;
   }).join('');
 }
 
 function h(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function js(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 async function triggerScan() {
   try {
