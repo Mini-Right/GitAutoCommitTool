@@ -1,5 +1,6 @@
 import logging
 import subprocess
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -8,6 +9,7 @@ from .models import AppConfig, RepoConfig, RepoState, ScanResult
 
 GIT_ENV = {"GIT_TERMINAL_PROMPT": "0"}
 TIMEOUT = 60
+CREATION_FLAGS = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
 
 class GitError(Exception):
@@ -42,6 +44,7 @@ def _run_git(path: Path, args: list[str], timeout: int = TIMEOUT) -> subprocess.
             encoding="utf-8",
             timeout=timeout,
             env={**subprocess.os.environ, **GIT_ENV},
+            creationflags=CREATION_FLAGS,
         )
     except FileNotFoundError:
         raise GitNotFoundError("Git 未安装或不在 PATH 中")
@@ -54,6 +57,7 @@ def check_git_installed() -> None:
             capture_output=True,
             encoding="utf-8",
             timeout=10,
+            creationflags=CREATION_FLAGS,
         )
     except FileNotFoundError:
         raise GitNotFoundError("Git 未安装或不在 PATH 中，请先安装 Git。")
