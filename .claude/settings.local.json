@@ -55,7 +55,8 @@
       "Bash(py -m git_auto_commit --gui)",
       "Bash(py -c \"import webview; print\\('pywebview OK:', webview.__version__\\)\")",
       "Bash(py -m PyInstaller --version)",
-      "Bash(py -m PyInstaller --onefile --noconsole --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" --hidden-import webview --hidden-import webview.platforms.winforms run_gui.py)"
+      "Bash(py -m PyInstaller --onefile --noconsole --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" --hidden-import webview --hidden-import webview.platforms.winforms run_gui.py)",
+      "Bash(curl -s -X POST http://localhost:8080/api/repos/push -H \"Content-Type: application/json\" -d \"{\\\\\"path\\\\\": \\\\\"e:/CodeSpace/GitAutoCommitTool\\\\\"}\")"
     ]
   }
 }
