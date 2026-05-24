@@ -61,4 +61,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="禁用 Web 管理面板，仅 CLI 模式",
     )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="GUI 模式：原生窗口内嵌管理面板，无需浏览器",
+    )
     return parser.parse_args(argv)

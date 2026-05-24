@@ -1,4 +1,5 @@
 import json
+import logging
 import sys
 import threading
 import time
@@ -18,6 +19,25 @@ else:
 HISTORY_MAX = 50
 
 
+LOG_BUFFER_SIZE = 200
+
+
+class LogHandler(logging.Handler):
+    def __init__(self, buffer: list[dict]):
+        super().__init__()
+        self.buffer = buffer
+
+    def emit(self, record: logging.LogRecord) -> None:
+        entry = {
+            "time": datetime.now().strftime("%H:%M:%S"),
+            "level": record.levelname,
+            "msg": self.format(record),
+        }
+        self.buffer.append(entry)
+        if len(self.buffer) > LOG_BUFFER_SIZE:
+            self.buffer[:] = self.buffer[-LOG_BUFFER_SIZE:]
+
+
 class SharedState:
     def __init__(self, config: AppConfig, config_path: Path | None = None):
         self.config = config
@@ -28,6 +48,8 @@ class SharedState:
         self.scanning: bool = False
         self._trigger_scan: bool = False
         self._force_push: bool = False
+        self._log_buffer: list[dict] = []
+        self._log_index: int = 0
         self._lock = threading.Lock()
 
     def acquire(self):
@@ -159,6 +181,18 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         })
                     history_data.append(cycle_data)
             self._send_json(history_data)
+        elif self.path.startswith("/api/logs"):
+            with self.shared_state._lock:
+                buf = self.shared_state._log_buffer
+                # Return logs since the given index
+                since = 0
+                if "?since=" in self.path:
+                    try:
+                        since = int(self.path.split("?since=")[1])
+                    except ValueError:
+                        pass
+                logs = buf[since:]
+                self._send_json({"logs": logs, "index": len(buf)})
         else:
             self._serve_static(self.path)
 

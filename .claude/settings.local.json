@@ -42,7 +42,17 @@
       "Bash(curl -s -X POST http://localhost:9997/api/push-all -H \"Content-Type: application/json\")",
       "Bash(curl -s http://localhost:9997/api/status)",
       "Bash(python -c ' *)",
-      "Bash(taskkill //F //IM py.exe)"
+      "Bash(taskkill //F //IM py.exe)",
+      "Bash(py -m pip install pywebview)",
+      "Bash(py -c \"from git_auto_commit.gui import run_gui; print\\('gui module OK'\\)\")",
+      "Bash(py -m PyInstaller --onefile --noconsole --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" run_gui.py)",
+      "Bash(start ./GitAutoCommit.exe)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Running: {d[\\\\\"running\\\\\"]}, Repos: {len\\(d[\\\\\"repos\\\\\"]\\)}'\\)\")",
+      "Bash(curl -s \"http://localhost:8080/api/logs?since=0\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Log entries: {len\\(d[\\\\\"logs\\\\\"]\\)}'\\)\")",
+      "Bash(timeout 5 py -m git_auto_commit --gui --port 9993)",
+      "Bash(timeout 6 py -m git_auto_commit --gui --port 9992)",
+      "Bash(py -m git_auto_commit --gui)"
     ]
   }
 }

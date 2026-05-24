@@ -175,6 +175,15 @@ input:focus { border-color:var(--blue); }
     </div>
     <div id="historyList"></div>
   </div>
+
+  <!-- Live Log -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>运行日志</h2>
+      <button class="btn btn-outline btn-sm" onclick="clearLogs()">清空</button>
+    </div>
+    <div id="logPanel" style="background:var(--bg);border-radius:6px;padding:10px;max-height:300px;overflow-y:auto;font-family:'Cascadia Code',Consolas,monospace;font-size:12px;line-height:1.6;"></div>
+  </div>
 </div>
 
 <script>
@@ -391,10 +400,34 @@ async function loadSettings() {
   } catch(e) {}
 }
 
+let _logIndex = 0;
+async function pollLogs() {
+  try {
+    const res = await fetch(API + '/api/logs?since=' + _logIndex);
+    const data = await res.json();
+    if (data.logs && data.logs.length > 0) {
+      const panel = document.getElementById('logPanel');
+      for (const entry of data.logs) {
+        const color = entry.level === 'ERROR' ? '#f85149' : entry.level === 'WARNING' ? '#d2991d' : entry.level === 'SUCCESS' ? '#3fb950' : '#8b949e';
+        const line = document.createElement('div');
+        line.innerHTML = `<span style="color:#555">${h(entry.time)}</span> <span style="color:${color}">[${entry.level}]</span> ${h(entry.msg)}`;
+        panel.appendChild(line);
+      }
+      panel.scrollTop = panel.scrollHeight;
+      _logIndex = data.index;
+    }
+  } catch(e) {}
+}
+function clearLogs() {
+  document.getElementById('logPanel').innerHTML = '';
+  _logIndex = 0;
+}
+
 refresh();
 loadSettings();
 loadHistory();
 setInterval(refresh, 10000);
+setInterval(pollLogs, 2000);
 </script>
 </body>
 </html>

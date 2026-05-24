@@ -16,6 +16,15 @@ from .git_ops import GitNotFoundError, check_git_installed
 from .logger import setup_logging
 
 
+def _pause_and_exit(code: int) -> None:
+    try:
+        print("Press Enter to exit...", file=sys.stderr)
+        input()
+    except (EOFError, KeyboardInterrupt):
+        pass
+    sys.exit(code)
+
+
 def main() -> None:
     args = parse_args()
 
@@ -31,14 +40,6 @@ def main() -> None:
         log_file=args.log_file,
         use_colors=not args.no_color,
     )
-
-    def _pause_and_exit(code: int) -> None:
-        try:
-            print("Press Enter to exit...", file=sys.stderr)
-            input()
-        except (EOFError, KeyboardInterrupt):
-            pass
-        sys.exit(code)
 
     try:
         check_git_installed()
@@ -56,11 +57,22 @@ def main() -> None:
     if args.interval is not None:
         config.interval_minutes = args.interval
 
-    if not args.no_web:
-        threading.Timer(1.0, lambda: webbrowser.open(f"http://localhost:{args.port}")).start()
+    if args.gui:
+        # GUI mode: daemon in background thread, webview on main thread
+        from .gui import run_gui
 
-    daemon_loop(config, logger, dry_run=args.dry_run, once=args.once,
-                port=args.port, no_web=args.no_web, config_path=config_path)
+        def _run_daemon() -> None:
+            daemon_loop(config, logger, dry_run=args.dry_run, once=False,
+                        port=args.port, no_web=False, config_path=config_path,
+                        gui_mode=True)
+        threading.Thread(target=_run_daemon, daemon=True).start()
+        run_gui(args.port)
+    else:
+        if not args.no_web:
+            threading.Timer(1.0, lambda: webbrowser.open(f"http://localhost:{args.port}")).start()
+
+        daemon_loop(config, logger, dry_run=args.dry_run, once=args.once,
+                    port=args.port, no_web=args.no_web, config_path=config_path)
 
 
 if __name__ == "__main__":

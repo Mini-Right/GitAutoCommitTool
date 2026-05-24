@@ -113,13 +113,21 @@ def daemon_loop(
     port: int = 8080,
     no_web: bool = False,
     config_path: Path | None = None,
+    gui_mode: bool = False,
 ) -> None:
     global _shutdown_requested, _force_quit
-    from .web import SharedState, start_web_server
+    from .web import LogHandler, SharedState, start_web_server
 
-    _register_handlers()
+    if not gui_mode:
+        _register_handlers()
 
     state = SharedState(config, config_path=config_path)
+
+    # Attach log handler so frontend can display live logs
+    log_handler = LogHandler(state._log_buffer)
+    log_handler.setLevel(logging.INFO)
+    log_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(log_handler)
 
     server = None
     if not no_web:

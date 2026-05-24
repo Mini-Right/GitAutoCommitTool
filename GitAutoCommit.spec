@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['run.py'],
+    ['run_gui.py'],
     pathex=[],
     binaries=[],
     datas=[('git_auto_commit/static', 'git_auto_commit/static')],
@@ -29,7 +29,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
