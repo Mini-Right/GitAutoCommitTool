@@ -6,8 +6,9 @@ from pathlib import Path
 
 # Ensure UTF-8 output on Windows for Chinese log messages
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    for stream in (sys.stdout, sys.stderr):
+        if stream is not None:
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
 from .cli import parse_args
 from .config import load_config
