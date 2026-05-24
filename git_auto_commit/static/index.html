@@ -255,6 +255,7 @@ function renderRepos(repos) {
         </label>
       </td>
       <td>
+        <button class="btn btn-blue btn-sm" onclick="pushRepo('${h(r.path)}')">推送</button>
         <button class="btn btn-red btn-sm" onclick="deleteRepo('${h(r.path)}')">删除</button>
       </td>
     </tr>`;
@@ -321,6 +322,21 @@ async function toggleRepo(path, enabled) {
     else toast(data.message, false);
   } catch(e) {
     toast('操作失败: ' + e.message, false);
+  }
+}
+
+async function pushRepo(path) {
+  try {
+    const res = await fetch(API + '/api/repos/push', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({path})
+    });
+    const data = await res.json();
+    toast(data.message, data.ok);
+    if (data.ok) setTimeout(refresh, 2000);
+  } catch(e) {
+    toast('推送失败: ' + e.message, false);
   }
 }
 

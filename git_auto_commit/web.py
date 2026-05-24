@@ -8,6 +8,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from typing import Any
 
+from .git_ops import process_repo
 from .models import AppConfig, RepoConfig, RepoState, ScanResult
 
 # Handle PyInstaller frozen builds
@@ -206,6 +207,40 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 self.shared_state._trigger_scan = True
                 self.shared_state._force_push = True
             self._send_json({"ok": True, "message": "一键推送已触发，将对所有仓库执行 add + commit + push"})
+        elif self.path == "/api/repos/push":
+            body = self._read_body()
+            path_str = body.get("path", "")
+            if not path_str:
+                self._send_json({"ok": False, "message": "缺少 path 字段"}, 400)
+                return
+            target = Path(path_str).resolve()
+            repo_config = None
+            with self.shared_state._lock:
+                for r in self.shared_state.config.repos:
+                    if r.path == target:
+                        repo_config = r
+                        break
+            if repo_config is None:
+                self._send_json({"ok": False, "message": "仓库不存在"}, 404)
+                return
+            logger = logging.getLogger("git_auto_commit")
+            result = process_repo(repo_config, self.shared_state.config, logger, dry_run=False, force=True)
+            with self.shared_state._lock:
+                updated = False
+                for i, r in enumerate(self.shared_state.last_results):
+                    if r.repo_path == target:
+                        self.shared_state.last_results[i] = result
+                        updated = True
+                        break
+                if not updated:
+                    self.shared_state.last_results.append(result)
+            self._send_json({
+                "ok": result.state != RepoState.ERROR,
+                "message": "推送完成" if result.state == RepoState.DIRTY else (result.error_message or "推送失败"),
+                "state": result.state.name,
+                "commit_hash": result.commit_hash,
+                "push_success": result.push_success,
+            })
         elif self.path == "/api/repos":
             body = self._read_body()
             path_str = body.get("path", "")
