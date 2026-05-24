@@ -29,6 +29,11 @@
       "path": "E:\\CodeSpace\\GitAutoCommitTool",
       "enabled": true,
       "commit_message_prefix": "自动提交: "
+    },
+    {
+      "path": "E:\\CodeSpace\\HumoBeeClue\\HumorBeeClueWechat",
+      "enabled": true,
+      "commit_message_prefix": "自动提交: "
     }
   ],
   "interval_minutes": 30,
