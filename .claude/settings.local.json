@@ -52,7 +52,10 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Log entries: {len\\(d[\\\\\"logs\\\\\"]\\)}'\\)\")",
       "Bash(timeout 5 py -m git_auto_commit --gui --port 9993)",
       "Bash(timeout 6 py -m git_auto_commit --gui --port 9992)",
-      "Bash(py -m git_auto_commit --gui)"
+      "Bash(py -m git_auto_commit --gui)",
+      "Bash(py -c \"import webview; print\\('pywebview OK:', webview.__version__\\)\")",
+      "Bash(py -m PyInstaller --version)",
+      "Bash(py -m PyInstaller --onefile --noconsole --name GitAutoCommit --add-data \"git_auto_commit/static;git_auto_commit/static\" --hidden-import webview --hidden-import webview.platforms.winforms run_gui.py)"
     ]
   }
 }

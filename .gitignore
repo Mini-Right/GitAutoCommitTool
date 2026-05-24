@@ -19,3 +19,4 @@ Thumbs.db
 config.json
 *.spec
 run.py
+run_gui.py
