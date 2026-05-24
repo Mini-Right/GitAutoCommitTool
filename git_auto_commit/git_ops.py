@@ -97,15 +97,18 @@ def add_all(path: Path) -> None:
         raise GitError(f"git add 失败: {result.stderr.strip()}")
 
 
-def commit(path: Path, message: str) -> str:
-    result = _run_git(path, ["commit", "-m", message])
+def commit(path: Path, message: str, allow_empty: bool = False) -> str:
+    args = ["commit", "-m", message]
+    if allow_empty:
+        args.insert(1, "--allow-empty")
+    result = _run_git(path, args)
     if result.returncode != 0:
         stderr = result.stderr.strip()
         if "Please tell me who you are" in stderr:
             raise CommitFailedError(
                 "Git 用户未配置，请执行: git config --global user.name / user.email"
             )
-        if "nothing to commit" in stderr:
+        if "nothing to commit" in stderr and not allow_empty:
             raise CommitFailedError("没有可提交的内容（并发竞争）")
         raise CommitFailedError(f"git commit 失败: {stderr}")
     rev_result = _run_git(path, ["rev-parse", "--short", "HEAD"])
@@ -137,9 +140,11 @@ def process_repo(
     app_config: AppConfig,
     logger: logging.Logger,
     dry_run: bool = False,
+    force: bool = False,
 ) -> ScanResult:
     path = repo.path
     repo_name = path.name
+    action_label = "一键推送" if force else ""
 
     if not path.exists():
         return ScanResult(
@@ -170,11 +175,15 @@ def process_repo(
     if is_detached:
         logger.warning("[%s] 处于 Detached HEAD 状态，将提交但跳过 push。", repo_name)
 
-    if not has_changes(path):
+    has_changes_flag = has_changes(path)
+    if not force and not has_changes_flag:
         logger.info("[%s] 没有变更。", repo_name)
         return ScanResult(repo_path=path, state=RepoState.CLEAN)
 
-    logger.info("[%s] 检测到变更。", repo_name)
+    if force:
+        logger.info("[%s] [一键推送] 强制执行 add + commit + push。", repo_name)
+    else:
+        logger.info("[%s] 检测到变更。", repo_name)
 
     if dry_run:
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -208,11 +217,12 @@ def process_repo(
         )
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    message = f"{repo.commit_message_prefix}scheduled commit [{ts}]"
+    prefix = "一键推送: " if force else repo.commit_message_prefix
+    message = f"{prefix}scheduled commit [{ts}]"
     logger.info("[%s] 提交: %s", repo_name, message)
 
     try:
-        commit_hash = commit(path, message)
+        commit_hash = commit(path, message, allow_empty=force)
     except CommitFailedError as e:
         return ScanResult(
             repo_path=path,

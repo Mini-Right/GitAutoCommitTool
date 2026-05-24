@@ -103,6 +103,7 @@ input:focus { border-color:var(--blue); }
     <h1>🔧 Git Auto Commit</h1>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-green" onclick="triggerScan()">立即扫描</button>
+      <button class="btn btn-blue" onclick="pushAll()" id="btnPushAll">一键Push</button>
       <button class="btn btn-outline" onclick="refresh()">刷新</button>
     </div>
   </div>
@@ -261,6 +262,23 @@ async function triggerScan() {
     if (data.ok) setTimeout(refresh, 2000);
   } catch(e) {
     toast('触发失败: ' + e.message, false);
+  }
+}
+
+async function pushAll() {
+  const btn = document.getElementById('btnPushAll');
+  btn.disabled = true;
+  btn.textContent = '推送中...';
+  try {
+    const res = await fetch(API + '/api/push-all', { method:'POST', headers:{'Content-Type':'application/json'} });
+    const data = await res.json();
+    toast(data.message, data.ok);
+    if (data.ok) setTimeout(refresh, 3000);
+  } catch(e) {
+    toast('推送失败: ' + e.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '一键Push';
   }
 }
 

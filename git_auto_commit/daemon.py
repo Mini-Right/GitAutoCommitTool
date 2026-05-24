@@ -73,12 +73,16 @@ def run_scan_cycle(
     config: AppConfig,
     logger: logging.Logger,
     dry_run: bool = False,
+    force: bool = False,
 ) -> list[ScanResult]:
     results: list[ScanResult] = []
     enabled_repos = [r for r in config.repos if r.enabled]
 
     logger.info("=" * 50)
-    logger.info("开始扫描，共 %d 个仓库。", len(enabled_repos))
+    if force:
+        logger.info("一键推送开始，共 %d 个仓库。", len(enabled_repos))
+    else:
+        logger.info("开始扫描，共 %d 个仓库。", len(enabled_repos))
     logger.info("=" * 50)
 
     for repo in config.repos:
@@ -92,7 +96,7 @@ def run_scan_cycle(
             results.append(ScanResult(repo_path=repo.path, state=RepoState.SKIPPED))
             continue
 
-        result = process_repo(repo, config, logger, dry_run=dry_run)
+        result = process_repo(repo, config, logger, dry_run=dry_run, force=force)
         results.append(result)
 
     if results:
@@ -132,14 +136,14 @@ def daemon_loop(
 
     _cycle_running = False
 
-    def _do_scan() -> None:
+    def _do_scan(force: bool = False) -> None:
         nonlocal _cycle_running
         if _cycle_running:
             return
         _cycle_running = True
         state.scanning = True
         try:
-            results = run_scan_cycle(config, logger, dry_run=dry_run)
+            results = run_scan_cycle(config, logger, dry_run=dry_run, force=force)
             with state._lock:
                 state.last_results = results
                 state.add_history(results)
@@ -155,14 +159,20 @@ def daemon_loop(
                 break
 
             triggered = False
+            force_push = False
             with state._lock:
                 if state._trigger_scan:
                     state._trigger_scan = False
+                    force_push = state._force_push
+                    state._force_push = False
                     triggered = True
 
             if triggered:
-                logger.info("收到手动触发扫描请求。")
-                _do_scan()
+                if force_push:
+                    logger.info("收到一键推送请求，强制执行所有仓库 add + commit + push。")
+                else:
+                    logger.info("收到手动触发扫描请求。")
+                _do_scan(force=force_push)
             elif not _cycle_running:
                 _do_scan()
 

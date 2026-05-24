@@ -27,6 +27,7 @@ class SharedState:
         self.history: list[list[ScanResult]] = []
         self.scanning: bool = False
         self._trigger_scan: bool = False
+        self._force_push: bool = False
         self._lock = threading.Lock()
 
     def acquire(self):
@@ -166,6 +167,11 @@ class _RequestHandler(BaseHTTPRequestHandler):
             with self.shared_state._lock:
                 self.shared_state._trigger_scan = True
             self._send_json({"ok": True, "message": "扫描已触发"})
+        elif self.path == "/api/push-all":
+            with self.shared_state._lock:
+                self.shared_state._trigger_scan = True
+                self.shared_state._force_push = True
+            self._send_json({"ok": True, "message": "一键推送已触发，将对所有仓库执行 add + commit + push"})
         elif self.path == "/api/repos":
             body = self._read_body()
             path_str = body.get("path", "")

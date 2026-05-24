@@ -36,7 +36,8 @@
       "Bash(curl -s -X POST http://localhost:8080/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/HumoBeeClue/HumoBeeClueAdmin\"}')",
       "Bash(./GitAutoCommit.exe --port 9999)",
       "Bash(curl -s http://localhost:9999/api/status)",
-      "Bash(curl -s -X POST http://localhost:9999/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/GitAutoCommitTool\"}')"
+      "Bash(curl -s -X POST http://localhost:9999/api/repos -H \"Content-Type: application/json\" -d '{\"path\":\"E:/CodeSpace/GitAutoCommitTool\"}')",
+      "Bash(py -m git_auto_commit --once --port 9998)"
     ]
   }
 }
